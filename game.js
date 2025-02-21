@@ -1,4 +1,3 @@
-// Get DOM elements
 const canvas = document.getElementById('game-canvas');
 const ctx = canvas.getContext('2d');
 const sensitivityInput = document.getElementById('sensitivity');
@@ -12,11 +11,9 @@ const hitsDisplay = document.getElementById('hits');
 const shootSound = document.getElementById('shoot-sound');
 const hitSound = document.getElementById('hit-sound');
 
-// Set canvas dimensions (match CSS container)
 canvas.width = 900;
 canvas.height = 600;
 
-// Game state variables
 let sensitivity = 1;
 let crosshair = { x: canvas.width / 2, y: canvas.height / 2, size: 10, color: '#00ff00', style: 'cross' };
 let targets = [];
@@ -24,7 +21,6 @@ let score = 0;
 let hits = 0;
 let gameRunning = false;
 
-// Load saved settings from localStorage
 function loadSettings() {
     sensitivity = parseFloat(localStorage.getItem('sensitivity') || 1);
     crosshair.size = parseInt(localStorage.getItem('crosshairSize') || 10);
@@ -38,21 +34,37 @@ function loadSettings() {
 }
 loadSettings();
 
-// Spawn a new target
 function spawnTarget() {
     targets.push({
         x: Math.random() * (canvas.width - 60) + 30,
         y: Math.random() * (canvas.height - 60) + 30,
         radius: 20,
-        color: '#ff4444'
+        color: '#ff4444',
+        dx: (Math.random() - 0.5) * 4, // Random x velocity (-2 to 2)
+        dy: (Math.random() - 0.5) * 4  // Random y velocity (-2 to 2)
     });
 }
 
-// Draw the game elements
+function updateTargets() {
+    targets.forEach(target => {
+        // Move target
+        target.x += target.dx;
+        target.y += target.dy;
+
+        // Bounce off edges
+        if (target.x - target.radius < 0 || target.x + target.radius > canvas.width) {
+            target.dx = -target.dx;
+        }
+        if (target.y - target.radius < 0 || target.y + target.radius > canvas.height) {
+            target.dy = -target.dy;
+        }
+    });
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw targets
+    // Draw moving targets
     targets.forEach(target => {
         ctx.beginPath();
         ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
@@ -79,7 +91,6 @@ function draw() {
     }
 }
 
-// Start the game
 function startGame() {
     score = 0;
     hits = 0;
@@ -90,26 +101,23 @@ function startGame() {
     gameLoop();
 }
 
-// Update score and hits display
 function updateStats() {
     scoreDisplay.textContent = score;
     hitsDisplay.textContent = hits;
 }
 
-// Game loop for continuous rendering
 function gameLoop() {
     if (gameRunning) {
+        updateTargets(); // Update target positions
         draw();
         requestAnimationFrame(gameLoop);
     }
 }
 
-// Start game with pointer lock
 startBtn.addEventListener('click', () => {
     canvas.requestPointerLock();
 });
 
-// Handle pointer lock state changes
 document.addEventListener('pointerlockchange', () => {
     if (document.pointerLockElement === canvas) {
         gameRunning = true;
@@ -121,7 +129,6 @@ document.addEventListener('pointerlockchange', () => {
     }
 });
 
-// Update crosshair position based on mouse movement
 function updateCrosshair(event) {
     crosshair.x += event.movementX * sensitivity;
     crosshair.y += event.movementY * sensitivity;
@@ -129,15 +136,13 @@ function updateCrosshair(event) {
     crosshair.y = Math.max(0, Math.min(canvas.height, crosshair.y));
 }
 
-// Handle shooting
 canvas.addEventListener('click', () => {
     if (gameRunning) {
-        shootSound.play().catch(() => console.log("Shoot sound not loaded yet"));
+        shootSound.play().catch(() => console.log("Shoot sound not loaded"));
         checkHit();
     }
 });
 
-// Check for target hits
 function checkHit() {
     let hitIndices = [];
     targets.forEach((target, index) => {
@@ -149,7 +154,7 @@ function checkHit() {
         }
     });
     if (hitIndices.length > 0) {
-        hitSound.play().catch(() => console.log("Hit sound not loaded yet"));
+        hitSound.play().catch(() => console.log("Hit sound not loaded"));
         hitIndices.forEach(index => {
             targets.splice(index, 1);
             hits++;
@@ -160,7 +165,6 @@ function checkHit() {
     }
 }
 
-// Update settings dynamically
 sensitivityInput.addEventListener('input', () => {
     sensitivity = parseFloat(sensitivityInput.value);
     sensitivityValue.textContent = sensitivity;
