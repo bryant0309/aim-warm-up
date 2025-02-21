@@ -1,5 +1,6 @@
-const canvas = document.getElementById('game-canvas');
-const ctx = canvas.getContext('2d');
+const container = document.getElementById('game-container');
+const crosshairCanvas = document.getElementById('crosshair-canvas');
+const ctx = crosshairCanvas.getContext('2d');
 const sensitivityInput = document.getElementById('sensitivity');
 const sensitivityValue = document.getElementById('sensitivity-value');
 const crosshairSizeInput = document.getElementById('crosshair-size');
@@ -11,15 +12,23 @@ const hitsDisplay = document.getElementById('hits');
 const shootSound = document.getElementById('shoot-sound');
 const hitSound = document.getElementById('hit-sound');
 
-canvas.width = 900;
-canvas.height = 600;
+crosshairCanvas.width = 900;
+crosshairCanvas.height = 600;
 
 let sensitivity = 1;
-let crosshair = { x: canvas.width / 2, y: canvas.height / 2, size: 10, color: '#00ff00', style: 'cross' };
-let targets = [];
 let score = 0;
 let hits = 0;
 let gameRunning = false;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, 900 / 600, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(900, 600);
+container.appendChild(renderer.domElement);
+camera.position.z = 50;
+
+const crosshair = { size: 10, color: '#00ff00', style: 'cross' };
+let targets = [];
 
 function loadSettings() {
     sensitivity = parseFloat(localStorage.getItem('sensitivity') || 1);
@@ -35,57 +44,45 @@ function loadSettings() {
 loadSettings();
 
 function spawnTarget() {
-    targets.push({
-        x: Math.random() * (canvas.width - 60) + 30,
-        y: Math.random() * (canvas.height - 60) + 30,
-        radius: 20,
-        color: '#ff4444',
-        dx: (Math.random() - 0.5) * 4, // Random x velocity (-2 to 2)
-        dy: (Math.random() - 0.5) * 4  // Random y velocity (-2 to 2)
-    });
+    const geometry = new THREE.SphereGeometry(2, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+    const target = new THREE.Mesh(geometry, material);
+    target.position.set(
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 60,
+        -20
+    );
+    target.dx = (Math.random() - 0.5) * 0.1;
+    target.dy = (Math.random() - 0.5) * 0.1;
+    scene.add(target);
+    targets.push(target);
 }
 
 function updateTargets() {
     targets.forEach(target => {
-        // Move target
-        target.x += target.dx;
-        target.y += target.dy;
-
-        // Bounce off edges
-        if (target.x - target.radius < 0 || target.x + target.radius > canvas.width) {
-            target.dx = -target.dx;
-        }
-        if (target.y - target.radius < 0 || target.y + target.radius > canvas.height) {
-            target.dy = -target.dy;
-        }
+        target.position.x += target.dx;
+        target.position.y += target.dy;
+        if (target.position.x < -40 || target.position.x > 40) target.dx = -target.dx;
+        if (target.position.y < -30 || target.position.y > 30) target.dy = -target.dy;
     });
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw moving targets
-    targets.forEach(target => {
-        ctx.beginPath();
-        ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
-        ctx.fillStyle = target.color;
-        ctx.fill();
-        ctx.closePath();
-    });
-
-    // Draw crosshair
+function drawCrosshair() {
+    ctx.clearRect(0, 0, crosshairCanvas.width, crosshairCanvas.height); // Clear previous frame
     ctx.strokeStyle = crosshair.color;
     ctx.lineWidth = 2;
+    const centerX = crosshairCanvas.width / 2;
+    const centerY = crosshairCanvas.height / 2;
     if (crosshair.style === 'cross') {
         ctx.beginPath();
-        ctx.moveTo(crosshair.x - crosshair.size, crosshair.y);
-        ctx.lineTo(crosshair.x + crosshair.size, crosshair.y);
-        ctx.moveTo(crosshair.x, crosshair.y - crosshair.size);
-        ctx.lineTo(crosshair.x, crosshair.y + crosshair.size);
+        ctx.moveTo(centerX - crosshair.size, centerY);
+        ctx.lineTo(centerX + crosshair.size, centerY);
+        ctx.moveTo(centerX, centerY - crosshair.size);
+        ctx.lineTo(centerX, centerY + crosshair.size);
         ctx.stroke();
     } else if (crosshair.style === 'dot') {
         ctx.beginPath();
-        ctx.arc(crosshair.x, crosshair.y, crosshair.size / 2, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, crosshair.size / 2, 0, Math.PI * 2);
         ctx.fillStyle = crosshair.color;
         ctx.fill();
     }
@@ -108,35 +105,35 @@ function updateStats() {
 
 function gameLoop() {
     if (gameRunning) {
-        updateTargets(); // Update target positions
-        draw();
+        updateTargets();
+        renderer.render(scene, camera);
+        drawCrosshair();
         requestAnimationFrame(gameLoop);
     }
 }
 
 startBtn.addEventListener('click', () => {
-    canvas.requestPointerLock();
+    container.requestPointerLock();
 });
 
 document.addEventListener('pointerlockchange', () => {
-    if (document.pointerLockElement === canvas) {
+    if (document.pointerLockElement === container) {
         gameRunning = true;
-        canvas.addEventListener('mousemove', updateCrosshair);
+        container.addEventListener('mousemove', updateCamera);
         startGame();
     } else {
         gameRunning = false;
-        canvas.removeEventListener('mousemove', updateCrosshair);
+        container.removeEventListener('mousemove', updateCamera);
     }
 });
 
-function updateCrosshair(event) {
-    crosshair.x += event.movementX * sensitivity;
-    crosshair.y += event.movementY * sensitivity;
-    crosshair.x = Math.max(0, Math.min(canvas.width, crosshair.x));
-    crosshair.y = Math.max(0, Math.min(canvas.height, crosshair.y));
+function updateCamera(event) {
+    camera.rotation.y -= event.movementX * sensitivity * 0.002;
+    camera.rotation.x -= event.movementY * sensitivity * 0.002;
+    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 }
 
-canvas.addEventListener('click', () => {
+container.addEventListener('click', () => {
     if (gameRunning) {
         shootSound.play().catch(() => console.log("Shoot sound not loaded"));
         checkHit();
@@ -144,23 +141,17 @@ canvas.addEventListener('click', () => {
 });
 
 function checkHit() {
-    let hitIndices = [];
-    targets.forEach((target, index) => {
-        const dx = crosshair.x - target.x;
-        const dy = crosshair.y - target.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < target.radius) {
-            hitIndices.push(index);
-        }
-    });
-    if (hitIndices.length > 0) {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+    const intersects = raycaster.intersectObjects(targets);
+    if (intersects.length > 0) {
         hitSound.play().catch(() => console.log("Hit sound not loaded"));
-        hitIndices.forEach(index => {
-            targets.splice(index, 1);
-            hits++;
-            score += 10;
-            spawnTarget();
-        });
+        const hitTarget = intersects[0].object;
+        scene.remove(hitTarget);
+        targets = targets.filter(t => t !== hitTarget);
+        hits++;
+        score += 10;
+        spawnTarget();
         updateStats();
     }
 }
