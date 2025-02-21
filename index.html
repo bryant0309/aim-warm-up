@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Aim Trainer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="main-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="overlay-ui">
+            <div id="settings-panel">
+                <h2>Settings</h2>
+                <label>Sensitivity: <span id="sensitivity-value">1</span></label>
+                <input type="range" id="sensitivity" min="0.1" max="5" step="0.1" value="1">
+                <label>Crosshair Size:</label>
+                <input type="range" id="crosshair-size" min="5" max="20" step="1" value="10">
+                <label>Crosshair Color:</label>
+                <input type="color" id="crosshair-color" value="#00ff00">
+                <label>Crosshair Style:</label>
+                <select id="crosshair-style">
+                    <option value="cross">Cross</option>
+                    <option value="dot">Dot</option>
+                </select>
+            </div>
+            <div id="stats">
+                <p>Score: <span id="score">0</span></p>
+                <p>Hits: <span id="hits">0</span></p>
+            </div>
+            <button id="start-btn">Start Training</button>
+        </div>
+    </div>
+    <audio id="shoot-sound" src="assets/shoot.mp3"></audio>
+    <audio id="hit-sound" src="assets/hit.mp3"></audio>
+    <script src="game.js"></script>
+</body>
+</html>
