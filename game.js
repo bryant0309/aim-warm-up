@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
     const container = document.getElementById('game-container');
     const crosshairCanvas = document.getElementById('crosshair-canvas');
-    const ctx = crosshairCanvas.getContext('2d');
+    const ctx = crosshairCanvas ? crosshairCanvas.getContext('2d') : null;
     const sensitivityInput = document.getElementById('sensitivity');
     const sensitivityValue = document.getElementById('sensitivity-value');
     const crosshairSizeInput = document.getElementById('crosshair-size');
@@ -16,10 +17,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameSensInput = document.getElementById('game-sens');
     const applySensBtn = document.getElementById('apply-sens');
 
+    // Check if critical elements exist
+    if (!container || !crosshairCanvas || !ctx) {
+        console.error('Game container or canvas not found');
+        return;
+    }
+
     // Set canvas dimensions
     crosshairCanvas.width = 900;
     crosshairCanvas.height = 540;
 
+    // Game state
     let sensitivity = 1;
     let score = 0;
     let hits = 0;
@@ -51,21 +59,24 @@ document.addEventListener('DOMContentLoaded', () => {
         crosshair.size = parseInt(localStorage.getItem('crosshairSize') || 10);
         crosshair.color = localStorage.getItem('crosshairColor') || '#00ff00';
         crosshair.style = localStorage.getItem('crosshairStyle') || 'cross';
-        sensitivityInput.value = sensitivity;
-        sensitivityValue.textContent = sensitivity.toFixed(2);
-        crosshairSizeInput.value = crosshair.size;
-        crosshairColorInput.value = crosshair.color;
-        crosshairStyleInput.value = crosshair.style;
+        
+        if (sensitivityInput) sensitivityInput.value = sensitivity;
+        if (sensitivityValue) sensitivityValue.textContent = sensitivity.toFixed(2);
+        if (crosshairSizeInput) crosshairSizeInput.value = crosshair.size;
+        if (crosshairColorInput) crosshairColorInput.value = crosshair.color;
+        if (crosshairStyleInput) crosshairStyleInput.value = crosshair.style;
     }
+    
 
     // Apply game-specific sensitivity
     function applyGameSensitivity() {
+        if (!gameSelect || !gameSensInput) return;
         const selectedGame = gameSelect.value;
-        const gameSens = parseFloat(gameSensInput.value);
+        const gameSens = parseFloat(gameSensInput.value) || 1;
         const factor = sensitivityFactors[selectedGame];
         sensitivity = gameSens / factor;
-        sensitivityInput.value = sensitivity;
-        sensitivityValue.textContent = sensitivity.toFixed(2);
+        if (sensitivityInput) sensitivityInput.value = sensitivity;
+        if (sensitivityValue) sensitivityValue.textContent = sensitivity.toFixed(2);
         localStorage.setItem('sensitivity', sensitivity);
     }
 
@@ -91,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             target.position.y += target.dy;
             if (target.position.x < -40 || target.position.x > 40) target.dx = -target.dx;
             if (target.position.y < -30 || target.position.y > 30) target.dy = -target.dy;
+        });
     }
 
     // Draw crosshair
@@ -134,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateStats() {
-        scoreDisplay.textContent = score;
-        hitsDisplay.textContent = hits;
+        if (scoreDisplay) scoreDisplay.textContent = score;
+        if (hitsDisplay) hitsDisplay.textContent = hits;
     }
 
     // Game loop
@@ -149,9 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Event listeners
-    startBtn.addEventListener('click', () => {
-        container.requestPointerLock();
-    });
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            container.requestPointerLock();
+        });
+    }
 
     document.addEventListener('pointerlockchange', () => {
         if (document.pointerLockElement === container) {
@@ -193,28 +207,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    sensitivityInput.addEventListener('input', () => {
-        sensitivity = parseFloat(sensitivityInput.value);
-        sensitivityValue.textContent = sensitivity.toFixed(2);
-        localStorage.setItem('sensitivity', sensitivity);
-    });
+    if (sensitivityInput) {
+        sensitivityInput.addEventListener('input', () => {
+            sensitivity = parseFloat(sensitivityInput.value);
+            if (sensitivityValue) sensitivityValue.textContent = sensitivity.toFixed(2);
+            localStorage.setItem('sensitivity', sensitivity);
+        });
+    }
 
-    crosshairSizeInput.addEventListener('input', () => {
-        crosshair.size = parseInt(crosshairSizeInput.value);
-        localStorage.setItem('crosshairSize', crosshair.size);
-    });
+    if (crosshairSizeInput) {
+        crosshairSizeInput.addEventListener('input', () => {
+            crosshair.size = parseInt(crosshairSizeInput.value);
+            localStorage.setItem('crosshairSize', crosshair.size);
+        });
+    }
 
-    crosshairColorInput.addEventListener('input', () => {
-        crosshair.color = crosshairColorInput.value;
-        localStorage.setItem('crosshairColor', crosshair.color);
-    });
+    if (crosshairColorInput) {
+        crosshairColorInput.addEventListener('input', () => {
+            crosshair.color = crosshairColorInput.value;
+            localStorage.setItem('crosshairColor', crosshair.color);
+        });
+    }
 
-    crosshairStyleInput.addEventListener('change', () => {
-        crosshair.style = crosshairStyleInput.value;
-        localStorage.setItem('crosshairStyle', crosshair.style);
-    });
+    if (crosshairStyleInput) {
+        crosshairStyleInput.addEventListener('change', () => {
+            crosshair.style = crosshairStyleInput.value;
+            localStorage.setItem('crosshairStyle', crosshair.style);
+        });
+    }
 
-    applySensBtn.addEventListener('click', applyGameSensitivity);
+    if (applySensBtn) {
+        applySensBtn.addEventListener('click', applyGameSensitivity);
+    }
 
     // Initial load
     loadSettings();
