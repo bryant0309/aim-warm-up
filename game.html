@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Aim Trainer - Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+</head>
+<body>
+    <div id="app-wrapper">
+        <header>
+            <div class="logo">3D Aim Trainer</div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="how-it-works.html">How It Works</a>
+                <a href="guides.html">Training Guides</a>
+                <a href="gear.html">Gaming Gear</a>
+                <a href="converter.html">Sensitivity Converter</a>
+                <a href="login.html">Log In</a>
+                <a href="signup.html">Sign Up</a>
+                <a href="download.html">Download</a>
+            </nav>
+        </header>
+        <main id="main-container">
+            <section id="sensitivity-selector">
+                <h2>Game Sensitivity Selector</h2>
+                <p class="subtitle">Sync your in-game sensitivity for accurate training.</p>
+                <div class="selector">
+                    <label for="game-select">Game:</label>
+                    <select id="game-select">
+                        <option value="csgo">CS:GO/CS2</option>
+                        <option value="valorant">Valorant</option>
+                        <option value="fortnite">Fortnite</option>
+                        <option value="apex">Apex Legends</option>
+                    </select>
+                    <label for="game-sens">Sensitivity:</label>
+                    <input type="number" id="game-sens" step="0.01" value="1">
+                    <button id="apply-sens">Apply</button>
+                </div>
+            </section>
+            <div id="game-container"></div>
+            <canvas id="crosshair-canvas"></canvas>
+            <div id="overlay-ui">
+                <div id="stats">
+                    <p>Score: <span id="score">0</span></p>
+                    <p>Hits: <span id="hits">0</span></p>
+                </div>
+                <button id="start-btn">Start Training</button>
+            </div>
+        </main>
+    </div>
+    <audio id="shoot-sound" src="assets/shoot.mp3"></audio>
+    <audio id="hit-sound" src="assets/hit.mp3"></audio>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
