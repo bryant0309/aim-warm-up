@@ -59,73 +59,7 @@ nav a:hover {
     color: #00ff00;
 }
 
-nav .play-now {
-    background: #00ff00;
-    color: #000000;
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-weight: bold;
-}
-
-nav .play-now:hover {
-    background: #00cc00;
-    color: #000000;
-}
-
-/* Introduction Page */
-#intro-container {
-    height: calc(100% - 60px); /* Adjust for header height */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hero {
-    text-align: center;
-    padding: 20px;
-}
-
-.hero img {
-    width: 100%;
-    max-width: 600px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.hero h1 {
-    font-size: 48px;
-    color: #00ff00;
-    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
-    margin-bottom: 15px;
-}
-
-.hero p {
-    font-size: 18px;
-    margin-bottom: 30px;
-    color: #ffffff;
-}
-
-.cta-btn {
-    display: inline-block;
-    padding: 15px 40px;
-    background: #00ff00;
-    color: #000000;
-    text-decoration: none;
-    border-radius: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    text-transform: uppercase;
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-    transition: all 0.3s ease;
-}
-
-.cta-btn:hover {
-    background: #00cc00;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
-    transform: scale(1.05);
-}
-
-/* Game Page */
+/* Main Container */
 #main-container {
     position: relative;
     width: 900px;
@@ -134,8 +68,10 @@ nav .play-now:hover {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+    margin-top: 60px; /* Offset for fixed header */
 }
 
+/* Sensitivity Selector */
 #sensitivity-selector {
     background: rgba(0, 0, 0, 0.9);
     padding: 10px;
@@ -188,6 +124,7 @@ nav .play-now:hover {
     background: #00cc00;
 }
 
+/* Game Container */
 #game-container {
     width: 100%;
     height: calc(100% - 60px); /* Adjust for sensitivity selector */
@@ -196,13 +133,14 @@ nav .play-now:hover {
 
 #crosshair-canvas {
     position: absolute;
-    top: 60px; /* Offset for sensitivity selector */
+    top: 60px;
     left: 0;
     width: 100%;
     height: calc(100% - 60px);
     pointer-events: none;
 }
 
+/* Overlay UI */
 #overlay-ui {
     position: absolute;
     top: 60px;
@@ -320,36 +258,4 @@ nav .play-now:hover {
     background: #00cc00;
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
     transform: translateX(-50%) scale(1.05);
-}
-
-/* Content Pages */
-.content-page {
-    height: calc(100% - 60px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-}
-
-.content-page h1 {
-    font-size: 36px;
-    color: #00ff00;
-    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
-    margin-bottom: 10px;
-}
-
-.content-page p {
-    font-size: 16px;
-    max-width: 600px;
-    color: #ffffff;
-    margin-bottom: 20px;
-}
-
-.content-page img {
-    width: 100%;
-    max-width: 400px;
-    border-radius: 10px;
-    margin-bottom: 20px;
 }
